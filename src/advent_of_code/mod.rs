@@ -2,7 +2,7 @@ use std::fs;
 use std::io;
 
 pub mod day_1;
-mod util;
+pub mod day_2;
 
 pub trait Day 
 {

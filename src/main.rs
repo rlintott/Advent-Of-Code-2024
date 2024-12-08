@@ -18,10 +18,7 @@ fn main() {
     iter.next(); // skip the first arg because it's not command line input
 
     while let Some(arg) = iter.next() {
-        let next_arg_iter: Option<&String> = match iter.next() {
-            Some(x   ) => Some(x),
-            None => None
-        };
+        let next_arg_iter: Option<&String> = iter.next();
 
         fn handle_parse_int_error(string: &String) -> u32 {
             eprintln!("Failed to parse {string} into u32");
@@ -58,30 +55,7 @@ fn main() {
 
     match day {
         1 => { advent_of_code::day_1::Day1::dispatch(puzzle, input); }
-        // 2 => { advent_of_code::day_2::Day2::dispatch(puzzle, &input); }
-        // 3 => { Day3::dispatch(puzzle, &input); }
-        // 4 => { Day4::dispatch(puzzle, &input); }
-        // 5 => { Day5::dispatch(puzzle, &input); }
-        // 6 => { Day6::dispatch(puzzle, &input); }
-        // 7 => { Day7::dispatch(puzzle, &input); }
-        // 8 => { Day8::dispatch(puzzle, &input); }
-        // 9 => { Day9::dispatch(puzzle, &input); }
-        // 10 => { Day10::dispatch(puzzle, &input); }
-        // 11 => { Day11::dispatch(puzzle, &input); }
-        // 12 => { Day12::dispatch(puzzle, &input); }
-        // 13 => { Day13::dispatch(puzzle, &input); }
-        // 14 => { Day14::dispatch(puzzle, &input); }
-        // 15 => { Day15::dispatch(puzzle, &input); }
-        // 16 => { Day16::dispatch(puzzle, &input); }
-        // 17 => { Day17::dispatch(puzzle, &input); }
-        // 18 => { Day18::dispatch(puzzle, &input); }
-        // 19 => { Day19::dispatch(puzzle, &input); }
-        // 20 => { Day20::dispatch(puzzle, &input); }
-        // 21 => { Day21::dispatch(puzzle, &input); }
-        // 22 => { Day22::dispatch(puzzle, &input); }
-        // 23 => { Day23::dispatch(puzzle, &input); }
-        // 24 => { Day24::dispatch(puzzle, &input); }
-        // 25 => { Day25::dispatch(puzzle, &input); }
+        2 => { advent_of_code::day_2::Day2::dispatch(puzzle, input); }
         _ => { }
     }     
 }
