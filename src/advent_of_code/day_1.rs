@@ -1,6 +1,5 @@
 use std::io;
 use std::fs;
-use std::usize;
 use crate::advent_of_code;
 use std::collections::HashMap;
 
@@ -18,26 +17,17 @@ impl advent_of_code::Day for Day1 {
             let line: String = line.unwrap();
             let mut numbers = line.split_ascii_whitespace();
             
-            // insert first number into list 1
             if let Ok(number) = numbers.next().unwrap().parse::<i32>() {
-                let insertion_idx: usize;
-                match list_1.binary_search(&number) {
-                    Ok(x) => insertion_idx = x,
-                    Err(x) => insertion_idx = x
-                }
-                list_1.insert(insertion_idx, number);    
+                list_1.push(number);    
             } 
 
-            // insert second number into list 2
             if let Ok(number) = numbers.next().unwrap().parse::<i32>() {
-                let insertion_idx: usize;
-                match list_2.binary_search(&number) {
-                    Ok(x) => insertion_idx = x,
-                    Err(x) => insertion_idx = x
-                }
-                list_2.insert(insertion_idx, number);    
+                list_2.push(number);    
             } 
         }
+
+        list_1.sort();
+        list_2.sort();
 
         let zipped = list_1.iter().zip(list_2.iter());
 
