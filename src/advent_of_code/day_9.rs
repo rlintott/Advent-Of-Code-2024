@@ -34,12 +34,12 @@ impl Day for Day9 {
 
         while left < right {
 
-            let start_id = left / 2;
-            let start_blocks = disk_map[left];
+            let left_id = left / 2;
+            let left_blocks = disk_map[left];
 
-            if completed_files.contains(&start_id) == false {
-                files.push(File { id: start_id, blocks: start_blocks });
-                completed_files.insert(start_id);
+            if completed_files.contains(&left_id) == false {
+                files.push(File { id: left_id, blocks: left_blocks });
+                completed_files.insert(left_id);
             }
 
             let left_free_space: u32 = disk_map[left + 1];
