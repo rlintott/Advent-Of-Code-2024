@@ -25,7 +25,7 @@ impl Day for Day9 {
 
         let mut left: usize = 0; 
         let mut right: usize = disk_map.len() - 1;
-        if disk_map.len() % 2 == 0 { // files are only on odd indices
+        if disk_map.len() % 2 == 0 { // files are only on even indices
             right = disk_map.len() - 2;
         } 
 
@@ -48,9 +48,9 @@ impl Day for Day9 {
 
             if left_free_space == 0 {
                 left += 2;
-                if left >= right && disk_map[left] > 0 {
-                    // edge case, add the final left block to files list
-                    files.push(File { id: right_id, blocks: disk_map[left] });
+                if left == right && disk_map[right] > 0 {
+                    // edge case, add the final right block to files list
+                    files.push(File { id: right_id, blocks: disk_map[right] });
                 }
                 continue;
             }
@@ -73,9 +73,9 @@ impl Day for Day9 {
             }
             else { // no free space left, advance right
                 left += 2;
-                if left >= right && disk_map[left] > 0 {
-                    // edge case, add the final left block to files list
-                    files.push(File { id: right_id, blocks: disk_map[left] });
+                if left == right && disk_map[right] > 0 {
+                    // edge case, add the final right block to files list
+                    files.push(File { id: right_id, blocks: disk_map[right] });
                 }
             }
 
