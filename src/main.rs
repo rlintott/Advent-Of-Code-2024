@@ -2,8 +2,9 @@ use std::env;
 use std::fs;
 use std::io;
 use std::io::BufRead;
-use crate::advent_of_code::Day;
-mod advent_of_code;
+
+use aoc_2024::advent_of_code;
+use aoc_2024::advent_of_code::Day;
 
 fn main() {
     
@@ -52,10 +53,10 @@ fn main() {
                 });
 
     let input = io::BufReader::new(file).lines();
-
     match day {
         1 => { advent_of_code::day_1::Day1::dispatch(puzzle, input); }
         2 => { advent_of_code::day_2::Day2::dispatch(puzzle, input); }
+        9 => { advent_of_code::day_9::Day9::dispatch(puzzle, input); }
         _ => { }
     }     
 }

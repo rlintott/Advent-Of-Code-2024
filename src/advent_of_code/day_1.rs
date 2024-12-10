@@ -1,14 +1,14 @@
 use std::io;
 use std::fs;
-use crate::advent_of_code;
 use std::collections::HashMap;
+use crate::advent_of_code::Day;
+
 
 pub struct Day1 { }
 
-impl advent_of_code::Day for Day1 {
-    // https://adventofcode.com/2024/day/1
+impl Day for Day1 {
 
-    fn puzzle_1(input: io::Lines<io::BufReader<fs::File>>) {
+    fn puzzle_1(input: io::Lines<io::BufReader<fs::File>>) -> String {
 
         let mut list_1: Vec<i32> = Vec::new();
         let mut list_2: Vec<i32> = Vec::new();
@@ -38,10 +38,11 @@ impl advent_of_code::Day for Day1 {
         }
 
         println!("Distance is: {distance}");
+        format!("Distance is: {distance}")
     }
 
 
-    fn puzzle_2(input: io::Lines<io::BufReader<fs::File>>) {
+    fn puzzle_2(input: io::Lines<io::BufReader<fs::File>>) -> String {
 
         let mut col_1_counter: HashMap<i32, i32> = HashMap::new();
         let mut col_2_counter: HashMap<i32, i32> = HashMap::new();
@@ -72,5 +73,6 @@ impl advent_of_code::Day for Day1 {
         }
 
         println!("Similary score is: {total_similarity_score}");
+        format!("Similary score is: {total_similarity_score}")
     }
 }

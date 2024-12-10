@@ -1,6 +1,10 @@
+#![allow(warnings)]
+// TODO: fix day 2
+
 use std::io;
 use std::fs;
-use crate::advent_of_code;
+//use crate::advent_of_code;
+use crate::advent_of_code::Day;
 
 pub struct Day2 {
 
@@ -21,10 +25,9 @@ fn jumps_with_range(a: i32, b: i32) -> bool {
     jump >= 1 && jump <= 3
 }
 
-impl advent_of_code::Day for Day2 {
-    // https://adventofcode.com/2024/day/2
+impl Day for Day2 {
 
-    fn puzzle_1(input: io::Lines<io::BufReader<fs::File>>) {
+    fn puzzle_1(input: io::Lines<io::BufReader<fs::File>>) -> String {
         let safe_reports = input.map(|line: Result<String, io::Error>| {
             line.unwrap()
                 .split_ascii_whitespace()
@@ -39,9 +42,10 @@ impl advent_of_code::Day for Day2 {
             .count();
 
             println!("There are {safe_reports} safe reports!");
+            format!("There are {safe_reports} safe reports!")
     }
 
-    fn puzzle_2(input: io::Lines<io::BufReader<fs::File>>) {
+    fn puzzle_2(input: io::Lines<io::BufReader<fs::File>>) -> String {
         let safe_reports = input.map(|line: Result<String, io::Error>| {
             line.unwrap()
                 .split_ascii_whitespace()
@@ -53,7 +57,10 @@ impl advent_of_code::Day for Day2 {
                 let mut safety: (bool, Option<usize>) = check_safety(x.iter(), true, increasing);
                 //dbg!("decreasing");
                 //let safety2: (bool, Option<usize>) = check_safety(x.iter(), true, decreasing);
+                println!();
+                println!("START:");
                 dbg!(x);
+
                 /* 
                 if safety.0 && safety2.0 {
                     dbg!("WHAT THE FUCK!");
@@ -70,32 +77,32 @@ impl advent_of_code::Day for Day2 {
                 }      
                 if safety.0 == false {
                     dbg!(false);
-                    dbg!("uh wut");
+                    //dbg!("uh wut");
                     return false;
                 }
                 if let Some(skip_index) = safety.1 {
-                    dbg!(x);
+                    //dbg!(x);
                     dbg!(skip_index);
                     let skipped = x.iter().enumerate().filter(|&(i, _)| i != skip_index).map(|(_, v)| v);
                     let result = check_safety(skipped, false, jumps_with_range).0;
                     dbg!(result);
-                    dbg!("uh wut");
+                    //dbg!("uh wut");
                     result
                 }
                 else {
                     let result = check_safety(x.iter(), true, jumps_with_range).0;
                     dbg!(result);
-                    dbg!("uh wut");
+                    //dbg!("uh wut");
                     result
                 }
             })
             .count();
 
             println!("There are {safe_reports} safe reports! (allowing removal)");
+            format!("There are {safe_reports} safe reports! (allowing removal)")
     }
 }
 
-// TODO; get rid of condition parameter this only works with transitive stuff or whatever
 fn check_safety<'a, F>(input: impl Iterator<Item = &'a i32>, allow_removal: bool, condition: F) -> (bool, Option<usize>) where 
 F: Fn(i32, i32) -> bool {
     dbg!("Starting");
@@ -107,87 +114,117 @@ F: Fn(i32, i32) -> bool {
     while let Some(mut curr) = iter.next() {
         dbg!(prev.unwrap());
         dbg!(curr);
+        dbg!(iter.peek());
         let prev_val: &i32 = prev.unwrap().1;
         let curr_val: &i32 = curr.1;
+
         if allow_removal == false && condition(*prev_val, *curr_val) == false {
-            return (false, index_removed);
+            return (false, None);
         }
 
+        if index_removed.is_some() && index_removed.unwrap() == curr.0 {
+            continue;
+        }
         /*
             a b  c       
             7 10 8 10 11
          */
-        //let skip_elem_invalid = iter.peek().is_some() && condition(*prev_val, *(iter.peek().unwrap()).1) == false;
+        let next: Option<&(usize, &i32)> = iter.peek();
         let ab_valid = condition(*prev_val, *curr_val);
-        let ac_valid = iter.peek().is_none() || condition(*prev_val,  *(iter.peek().unwrap()).1);
-        let bc_valid = iter.peek().is_none() || condition(*curr_val,  *(iter.peek().unwrap()).1);
+        let ac_valid = next.is_none() || condition(*prev_val,  *(next.unwrap()).1);
+        let bc_valid = next.is_none() || condition(*curr_val,  *(next.unwrap()).1);
 
+        //dbg!(ab_valid, ac_valid, bc_valid);
+
+        if !(ab_valid || ac_valid || bc_valid) {
+            //dbg!(false);
+            return (false, None);
+        }
+        
         if bc_valid == false {
             if ac_valid {
                 // have to delete b
+                if already_removed {
+                    return (false, None);
+                }
                 already_removed = true;
                 index_removed = Some(curr.0);
-                curr = iter.next().unwrap();
+                if next.is_some() { // b might be the last 
+                    //iter.next().unwrap();
+                    //prev = Some(curr);
+                }
                 continue;
             } else if ab_valid {
-                // delete c which will happen in the next iteration
-            }
-        } 
+                //skip c which will happen in the next iteration
+                if already_removed {
+                    return (false, None);
+                }
 
-        if ab_valid == false {
+                index_removed = Some(next.unwrap().0);
+                already_removed = true;
+                /*
+                
+                iter.next();
+                if iter.peek().is_some() {
+                    prev = Some(curr);
+                    continue;
+                } else {
+                    return (true, index_removed);
+                }           
+                
+                 */
+                }
+            } else if ab_valid == false {
             if ac_valid {
-                // delete b then
+                // skip b then
+                if already_removed {
+                    return (false, None);
+                }
                 already_removed = true;
                 index_removed = Some(curr.0);
-                curr = iter.next().unwrap();
+                if next.is_some() {
+                    //iter.next().unwrap();
+                    //prev = Some(curr);
+                }
+                continue;
             } else if bc_valid {
-                // have to delete a 
+                // have to skip a 
+                if already_removed {
+                    return (false, None);
+                }
                 already_removed = true;
                 index_removed = Some(prev.unwrap().0);
             }
 
-        }
-    
-        if ac_valid == false {
-            // c has to be deletedwhich will happen in next iteration
-        }
-        
+        } else if ac_valid == false {
 
-        if condition(*prev_val, *curr_val) == false {
+            // skip c which will happen in the next iteration
+            
+            if already_removed {
+                return (false, None);
+            }
+            dbg!("here!");
+            index_removed = Some(next.unwrap().0);
+            already_removed = true;
 
-            //if skip_elem_invalid && 
-            
-            // about to fail
-            if allow_removal 
-                    && already_removed == false 
-                    && iter.peek().is_some() 
-                    && condition(*prev_val, *(iter.peek().unwrap()).1) {
-                // if we havent already removed a level we remove this one
-                already_removed = true;
-                index_removed = Some(curr.0);
-                curr = iter.next().unwrap();
-                dbg!("removing");
-            
-            } else if allow_removal && is_first_elem {
-                already_removed = true;
-                index_removed = Some(prev.unwrap().0);
-                dbg!(index_removed);
-                dbg!("removing first elem");
-            } else if allow_removal && already_removed == false && iter.peek().is_none() {
-                dbg!("here");
-                index_removed = Some(curr.0);
-                return (true, index_removed);
+            /*
+            iter.next();
+            if iter.peek().is_some() {
+                prev = Some(curr);
+                continue;
             } else {
-                dbg!("here");
-                //dbg!(input);
-                return (false, index_removed);
-            }
-        }
+                return (true, index_removed);
+            }                                
+             */
+        }  
+
         prev = Some(curr);
         is_first_elem = false;
     }
     // 100, 3, 101, 102, 103
     // 100, 3, 4, 5, 7
     //dbg!("win");
+    //dbg!(true);
+
     (true, index_removed)
 }
