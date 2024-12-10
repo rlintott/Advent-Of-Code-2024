@@ -18,68 +18,80 @@ impl Day for Day9 {
     fn puzzle_1(mut input: io::Lines<io::BufReader<fs::File>>) -> String {
 
         let input_string = input.next().unwrap().unwrap();
-        // this is ok because it's ascii
-        //let disk_map: &[u8] = input_string.as_bytes_mut();
+
         let mut disk_map: Vec<u32> = input_string.bytes().map(|b| {
             (b as char).to_digit(10).unwrap()
-        })
-        .collect();
+        }).collect();
 
-        let mut start_pointer: usize = 0; // want the index of the free free space
-        let mut end_pointer: usize = disk_map.len() - 1;
-        if disk_map.len() % 2 == 0 { // want the index of a file not free space
-            end_pointer = disk_map.len() - 2;
+        let mut left: usize = 0; 
+        let mut right: usize = disk_map.len() - 1;
+        if disk_map.len() % 2 == 0 { // files are only on odd indices
+            right = disk_map.len() - 2;
         } 
-        let mut files: Vec<File> = Vec::new();
 
+        let mut files: Vec<File> = Vec::new();
         let mut completed_files: collections::HashSet<usize> = std::collections::HashSet::new();
 
-        while start_pointer < end_pointer {
+        while left < right {
 
-            let start_id = start_pointer / 2;
-            let start_blocks = disk_map[start_pointer];
+            let start_id = left / 2;
+            let start_blocks = disk_map[left];
 
             if completed_files.contains(&start_id) == false {
                 files.push(File { id: start_id, blocks: start_blocks });
                 completed_files.insert(start_id);
             }
 
-            let free_space: u32 = disk_map[start_pointer + 1];
-            let end_id = end_pointer / 2;
-            let end_blocks = disk_map[end_pointer];
-            // push as much as possible of file blocks into the free space
-            files.push(File { id: end_id, blocks: std::cmp::min(free_space, end_blocks) });
+            let left_free_space: u32 = disk_map[left + 1];
+            let right_id = right / 2;
+            let right_blocks = disk_map[right];
 
-            // update the blocks left for end file
-            if end_blocks >= free_space {
-                disk_map[end_pointer] = end_blocks - free_space;
+            if left_free_space == 0 {
+                left += 2;
+                if left >= right && disk_map[left] > 0 {
+                    // edge case, add the final left block to files list
+                    files.push(File { id: right_id, blocks: disk_map[left] });
+                }
+                continue;
+            }
+
+            // push as much as possible of the right file blocks into the free space
+            files.push(File { id: right_id, blocks: std::cmp::min(left_free_space, right_blocks) });
+
+            // update the blocks left for right file and the free space
+            if right_blocks >= left_free_space {
+                disk_map[right] = right_blocks - left_free_space;
+                disk_map[left + 1] = 0;
             }
             else {
-                disk_map[end_pointer] = 0;
+                disk_map[right] = 0;
+                disk_map[left + 1] = left_free_space - right_blocks;
             }
 
-            dbg!(start_pointer);
-            dbg!(end_pointer);
-
-            if free_space >= end_blocks { // finished compacting this file, move to next
-                end_pointer -= 2;
+            if left_free_space >= right_blocks { // finished compacting file, advance left
+                right -= 2;
             }
-            else { // move to next free space
-                start_pointer += 2;
+            else { // no free space left, advance right
+                left += 2;
+                if left >= right && disk_map[left] > 0 {
+                    // edge case, add the final left block to files list
+                    files.push(File { id: right_id, blocks: disk_map[left] });
+                }
             }
 
         }
 
-        let mut checksum: u32 = 0;
+        let mut checksum: u64 = 0;
 
-        for (index, file) in files.iter().enumerate() {
-            checksum += file.blocks * (file.id as u32);
+        let mut pos: u32  = 0;
+        for file in files {
+            for _i in 0..file.blocks {
+                checksum += (pos * (file.id as u32)) as u64;
+                pos += 1;
+            }
         }
 
-        dbg!(files);
-        dbg!(checksum);
-
-        format!("")
+        checksum.to_string()
     }
 
 
