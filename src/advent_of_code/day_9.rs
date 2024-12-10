@@ -55,10 +55,10 @@ impl Day for Day9 {
                 continue;
             }
 
-            // push as much as possible of the right file blocks into the free space
+            // push as much as possible of the right file's blocks into the free space
             files.push(File { id: right_id, blocks: std::cmp::min(left_free_space, right_blocks) });
 
-            // update the blocks left for right file and the free space
+            // update the blocks remaining for right file and the free space
             if right_blocks >= left_free_space {
                 disk_map[right] = right_blocks - left_free_space;
                 disk_map[left + 1] = 0;
