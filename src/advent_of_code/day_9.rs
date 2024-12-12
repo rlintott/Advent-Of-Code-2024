@@ -37,6 +37,7 @@ impl Day for Day9 {
             let left_id = left / 2;
             let left_blocks = disk_map[left];
 
+            // check so that left files aren't duplicated in the list
             if completed_files.contains(&left_id) == false {
                 files.push(File { id: left_id, blocks: left_blocks });
                 completed_files.insert(left_id);
@@ -58,7 +59,7 @@ impl Day for Day9 {
             // push as much as possible of the right file's blocks into the free space
             files.push(File { id: right_id, blocks: std::cmp::min(left_free_space, right_blocks) });
 
-            // update the blocks remaining for right file and the free space
+            // update the blocks remaining and free space
             if right_blocks >= left_free_space {
                 disk_map[right] = right_blocks - left_free_space;
                 disk_map[left + 1] = 0;
@@ -68,10 +69,10 @@ impl Day for Day9 {
                 disk_map[left + 1] = left_free_space - right_blocks;
             }
 
-            if left_free_space >= right_blocks { // finished compacting file, advance left
+            if disk_map[right] == 0 { // finished compacting file, advance right pointer left
                 right -= 2;
             }
-            else { // no free space left, advance right
+            else { // used up left pointer's free space, advance it right
                 left += 2;
                 if left == right && disk_map[right] > 0 {
                     // edge case, add the final right block to files list
