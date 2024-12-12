@@ -6,7 +6,8 @@ pub mod advent_of_code {
     pub mod day_1;
     pub mod day_2;
     pub mod day_9;
-    
+    pub mod day_11;
+
     pub trait Day 
     {
         // TODO: aybe pass in just a bufreader instead of lines because some inputs are just one massive line...
