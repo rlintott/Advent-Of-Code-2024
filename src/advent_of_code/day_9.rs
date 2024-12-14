@@ -17,7 +17,7 @@ impl Day for Day9 {
 
     fn puzzle_1(mut input: io::Lines<io::BufReader<fs::File>>) -> String {
 
-        let input_string = input.next().unwrap().unwrap();
+        let input_string: String = input.next().unwrap().unwrap();
 
         let mut disk_map: Vec<u32> = input_string.bytes().map(|b| {
             (b as char).to_digit(10).unwrap()
