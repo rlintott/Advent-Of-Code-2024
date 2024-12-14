@@ -33,11 +33,11 @@ impl Day for Day11 {
         fn get_stones_count(parent_stone: u32, blinks: u32, memo: &mut HashMap<u32, Vec<u32>>) {
             
             if blinks <= 0 {
-
                 return;
             }
             if memo.contains_key(&parent_stone) && memo[&parent_stone].len() >= (blinks as usize) {
-               return;
+                //dbg!("hit cache 1!");
+                return;
             }
 
             
@@ -84,6 +84,8 @@ impl Day for Day11 {
                     
                      */
   
+                } else {
+                    //dbg!("hit cache 2!");
                 }
             }
 
@@ -127,6 +129,7 @@ impl Day for Day11 {
                                             .collect();
         let stone_memo_table: &mut HashMap<u32, Vec<u32>> = &mut HashMap::new(); 
 
+        
         get_stones_count(starting_stones[0], 26,  stone_memo_table);
         get_stones_count(starting_stones[1], 26,  stone_memo_table);
         dbg!(&stone_memo_table[&125]);
