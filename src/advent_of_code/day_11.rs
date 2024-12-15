@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use std::fs;
 use std::io;
 use std::collections::HashMap;
@@ -9,11 +8,11 @@ use crate::advent_of_code::Day;
 pub struct Day11 { }
 
 struct DigitIterator {
-    value: u32
+    value: u64
 }
 
 impl Iterator for DigitIterator {
-    type Item = u32;
+    type Item = u64;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.value <= 0 {
@@ -30,7 +29,7 @@ impl Day for Day11 {
 
     fn puzzle_1(mut input: io::Lines<io::BufReader<fs::File>>) -> String {
 
-        fn get_stones_count(parent_stone: u32, blinks: u32, memo: &mut HashMap<u32, Vec<u32>>) {
+        fn get_stones_count(parent_stone: u64, blinks: u64, memo: &mut HashMap<u64, Vec<u64>>) {
             
             if blinks <= 0 {
                 return;
@@ -40,19 +39,18 @@ impl Day for Day11 {
                 return;
             }
 
-            
             // there can only be 2 children stones
-            let child_1: Option<u32>;
-            let mut child_2: Option<u32> = None;
+            let child_1: Option<u64>;
+            let mut child_2: Option<u64> = None;
 
             let digits: usize = (DigitIterator { value: parent_stone }).count();
             if parent_stone == 0 {
                 child_1 = Some(1);
             } else if digits % 2 == 0 {
                 // even number of digits
-                let mut digit_first_half: u32 = 0;
-                let mut digit_second_half: u32 = 0;
-                let mut mult: u32 = 1;
+                let mut digit_first_half: u64 = 0;
+                let mut digit_second_half: u64 = 0;
+                let mut mult: u64 = 1;
                 for digit in (DigitIterator { value: parent_stone }).take(digits / 2) {
                     // starting with the second half since it iteratates right to left
                     digit_second_half += digit * mult;
@@ -69,21 +67,9 @@ impl Day for Day11 {
                 child_1 = Some(parent_stone * 2024);
             }
 
-            //get_stones_count(parent_stone, blinks - 1, memo);
-            fn update_memo_stones(stone: u32, blinks: u32, memo: &mut HashMap<u32, Vec<u32>>) {
+            fn update_memo_stones(stone: u64, blinks: u64, memo: &mut HashMap<u64, Vec<u64>>) {
                 if !memo.contains_key(&stone) || memo[&stone].len() < (blinks as usize) {
                     get_stones_count(stone, blinks - 1, memo);
-                    /*
-                    
-                    memo.entry(stone)
-                        .and_modify(|memo_stones| {
-                            for i in memo_stones.len()..stones.len() {
-                                memo_stones.push(stones[i]);
-                            }
-                    });                          
-                    
-                     */
-  
                 } else {
                     //dbg!("hit cache 2!");
                 }
@@ -100,9 +86,8 @@ impl Day for Day11 {
                 update_memo_stones(stone, blinks, memo);
             }
 
-            // [ 1, 1, 2, 4, 4, 8]
-            // the stones made after x itr = (child1 after x-1 itr) + (child2 after x-1 itr)
-            let mut result: Vec<u32> = vec![0; blinks as usize];
+            // parent stones after x itr = (child1 stones after x-1 itr) + (child2 stones after x-1 itr)
+            let mut result: Vec<u64> = vec![0; blinks as usize];
             //dbg!(blinks);
             //dbg!(&memo[&child_1.unwrap()]);
             result[0] = 1;
@@ -119,27 +104,27 @@ impl Day for Day11 {
                 }    
             }
             (*memo).insert(parent_stone, result);
-            //println!("returning");
-            //result
         }
 
-        let starting_stones: Vec<u32> = input.next().unwrap().unwrap()
+        let starting_stones: Vec<u64> = input.next().unwrap().unwrap()
                                             .split_ascii_whitespace()
-                                            .map(|s| { s.parse::<u32>().unwrap() })
+                                            .map(|s| { s.parse::<u64>().unwrap() })
                                             .collect();
-        let stone_memo_table: &mut HashMap<u32, Vec<u32>> = &mut HashMap::new(); 
+        let stone_memo_table: &mut HashMap<u64, Vec<u64>> = &mut HashMap::new(); 
 
-        
-        get_stones_count(starting_stones[0], 26,  stone_memo_table);
-        get_stones_count(starting_stones[1], 26,  stone_memo_table);
-        dbg!(&stone_memo_table[&125]);
-        dbg!(&stone_memo_table[&17]);
-        "".to_string()
+        let mut result: u64 = 0;
+        for stone in starting_stones {
+            // TODO: there's an off by one error requiring us to pass in blinks + 1
+            get_stones_count(stone, 76,  stone_memo_table);
+            result += stone_memo_table[&stone].last().unwrap();
+        }
+        dbg!(result);
+        result.to_string()
     }
 
 
 
-    fn puzzle_2(mut input: io::Lines<io::BufReader<fs::File>>) -> String {
+    fn puzzle_2(input: io::Lines<io::BufReader<fs::File>>) -> String {
         "".to_string()
     }
 

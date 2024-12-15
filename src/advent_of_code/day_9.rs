@@ -96,7 +96,10 @@ impl Day for Day9 {
     }
 
 
-    fn puzzle_2(mut input: io::Lines<io::BufReader<fs::File>>) -> String {
+    fn puzzle_2(input: io::Lines<io::BufReader<fs::File>>) -> String {
+        /* 
+
+
         let input_string = input.next().unwrap().unwrap();
 
         let mut disk_map: Vec<u32> = input_string.bytes().map(|b| {
@@ -112,7 +115,6 @@ impl Day for Day9 {
         let mut completed_files: collections::HashSet<usize> = std::collections::HashSet::new();
 
         // TODO: this puzzle
-        /* 
                 while right > 0 {
 
             for left in (0..right).step_by(2) {
