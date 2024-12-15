@@ -118,7 +118,7 @@ impl Day for Day11 {
         let mut result: u64 = 0;
         for stone in starting_stones {
             // TODO: there's an off by one error requiring us to pass in blinks + 1
-            get_stones_count(stone, 76,  stone_memo_table);
+            get_stones_count(stone, 26,  stone_memo_table);
             result += stone_memo_table[&stone].last().unwrap();
         }
         dbg!(result);
