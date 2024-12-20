@@ -29,7 +29,7 @@ impl Day for Day19 {
         input.next();
 
         // step 2, do the algorithm
-        // is_valid[i] = is_valid[i - 1] and exists a substring starting at i that is a valid pattern       
+        // is_valid[i + n] = is_valid[i - 1] and substring [i..n] is valid pattern      
         let mut valid_designs: u64 = 0; 
         while let Some(design_result) = input.next() {
 
@@ -38,6 +38,7 @@ impl Day for Day19 {
 
             let mut valid: Vec<bool> = vec![false; design.len() + 1];  
             // first element in array is base condition, an empty string is valid      
+            // NOTE: because there's one extra element for empty string valid[i] is actually valid[i+1] 
             valid[0] = true;   
 
             for i in 0..design.len() {
@@ -92,6 +93,7 @@ impl Day for Day19 {
 
             let mut num_ways: Vec<u64> = vec![0; design.len() + 1];        
             // first element in array is base condition, there's 1 way to make an empty string      
+            // NOTE: because there's one extra element for empty string valid[i] is actually valid[i+1]
             num_ways[0] = 1;
 
             for i in 0..design.len() {
@@ -108,7 +110,7 @@ impl Day for Day19 {
                         num_ways_i += num_ways[j];
                     }
                 }
-                num_ways[i+1] = num_ways_i;
+                num_ways[i + 1] = num_ways_i;
             }
 
             total_ways += num_ways[design.len()];
