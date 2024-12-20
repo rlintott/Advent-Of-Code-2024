@@ -104,9 +104,6 @@ fn get_stones_count(parent_stone: u64, blinks: u64, memo: &mut HashMap<u64, Vec<
 
 
 impl Day for Day11 {
-
-
-    
     fn puzzle_1(mut input: io::Lines<io::BufReader<fs::File>>) -> String {
 
         let starting_stones: Vec<u64> = input.next().unwrap().unwrap()

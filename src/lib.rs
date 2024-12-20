@@ -7,6 +7,7 @@ pub mod advent_of_code {
     pub mod day_2;
     pub mod day_9;
     pub mod day_11;
+    pub mod day_19;
 
     pub trait Day 
     {
