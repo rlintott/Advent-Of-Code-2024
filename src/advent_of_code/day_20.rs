@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::io;
 use std::fs;
+use std::string::ParseError;
 
 use crate::advent_of_code::Day;
 
@@ -177,7 +178,49 @@ impl Day for Day20 {
     
     fn puzzle_2(mut input: io::Lines<io::BufReader<fs::File>>) -> String {
 
-        "".to_string()
+        
+        let all_lines: Vec<Result<String, io::Error>> = input.collect();
+
+        let maze_1 = create_maze(&all_lines);
+        let maze_2 = create_maze(&all_lines);
+
+        let start_pos = maze_1.1;
+        let end_pos = maze_1.2;
+        let iter_maze = maze_1.0;
+        let mut mut_maze = maze_2.0;
+
+        let maze_iter = SimpleMazeIterator { maze: &iter_maze, prev_pos: start_pos, start_pos: start_pos, end_pos: end_pos };
+
+        let mut picoseconds_travelled: i64 = 0; 
+        let y_bound = iter_maze.len() as i32;
+        let x_bound = iter_maze[0].len() as i32;
+        let mut good_cheats: u64 = 0;
+
+        for pos in maze_iter {
+            picoseconds_travelled += 1;
+            // TODO: have to index maze like [y][x], is confusing, find better way 
+            mut_maze[pos.1 as usize][pos.0 as usize] = picoseconds_travelled;
+
+            for peek_pos_data in (ManhattanDistanceIterator { center: pos, 
+                                                                            radius: 20, 
+                                                                            index: 0, 
+                                                                            sub_index: 0,
+                                                                            x_bound: x_bound, 
+                                                                            y_bound: y_bound }) {
+
+                let peek_pos = peek_pos_data.0;
+                let cheat_picoseconds = peek_pos_data.1;
+                if mut_maze[peek_pos.1 as usize][peek_pos.0 as usize] > 0 || peek_pos == start_pos {
+                    let time_saved = picoseconds_travelled - mut_maze[peek_pos.1 as usize][peek_pos.0 as usize] - cheat_picoseconds as i64;
+                    if time_saved >= 100 {
+                        good_cheats += 1;
+                    }
+                }
+            }
+
+        }
+
+        good_cheats.to_string()
     }
 
 }
@@ -193,10 +236,10 @@ struct ManhattanDistanceIterator {
 }
 
 impl Iterator for ManhattanDistanceIterator {
-    type Item = (i32, i32);
+    type Item = ((i32, i32), i32);
 
     fn next(&mut self) -> Option<Self::Item> {
-        let mut next: Option<(i32, i32)>;
+        let mut next: Option<((i32, i32), i32)>;
 
         loop {
             if self.sub_index > 3 {
@@ -216,15 +259,16 @@ impl Iterator for ManhattanDistanceIterator {
 
             // stole this elegant algorithm: https://stackoverflow.com/questions/75128474/how-to-generate-all-of-the-coordinates-that-are-within-a-manhattan-distance-r-of
             next = match self.index {
-                0 => Some((self.center.0 + offset, self.center.1 + inverse_offset)),
-                1 => Some((self.center.0 + inverse_offset, self.center.1 - offset)),
-                2 => Some((self.center.0 - offset, self.center.1 - inverse_offset)),
-                3 => Some((self.center.0 - inverse_offset, self.center.1 + offset)),
+                0 => Some(((self.center.0 + offset, self.center.1 + inverse_offset), self.radius)),
+                1 => Some(((self.center.0 + inverse_offset, self.center.1 - offset), self.radius)),
+                2 => Some(((self.center.0 - offset, self.center.1 - inverse_offset), self.radius)),
+                3 => Some(((self.center.0 - inverse_offset, self.center.1 + offset),self.radius)),
                 _ => panic!() // not gonna happen!
             }; 
 
             self.sub_index += 1;
-            if let Some(pos) = next {
+            if let Some(pos_data) = next {
+                let pos = pos_data.0;
                 let in_bounds = !(pos.0 < 0 || pos.0 >= self.x_bound || pos.1 < 0 || pos.1 >= self.y_bound);
                 if in_bounds {
                     break;
