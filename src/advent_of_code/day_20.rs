@@ -68,32 +68,21 @@ impl Iterator for SimpleMazeIterator<'_> {
         let y_len: usize = self.maze.len();
         let x_len: usize = self.maze[0].len();
 
-        //dbg!(self.prev_pos);
-
         for pos_data in (UDLRIterator { center: self.start_pos, 
                                                                     dist_from_center: 1, 
                                                                     index: 0, 
                                                                     x_bound: x_len as i32, 
-                                                                    y_bound: y_len as i32 }) {
-            //dbg!(self.prev_pos);
-            //dbg!(self.start_pos);
-                                                                
+                                                                    y_bound: y_len as i32 }) {                                                                
             let pos = pos_data.0;
-            //dbg!(pos);
             if pos == self.prev_pos {
                 continue;
             }
-            //dbg!(&self.maze[pos.0 as usize]);
-            //dbg!(pos);
-            //dbg!(self.maze[pos.0 as usize][pos.1 as usize]);
             match self.maze[pos.1 as usize][pos.0 as usize] {
                 -1 => (),
                 _ => { self.prev_pos = self.start_pos; self.start_pos = pos; break }
             }
 
         }
-        //dbg!(self.prev_pos);
-        //dbg!(self.start_pos);
         Some(self.start_pos)
     }
 }
@@ -126,7 +115,6 @@ fn create_maze(input: &Vec<Result<String, io::Error>>) -> (Vec<Vec<i64>>, (i32, 
     (maze, start_pos, end_pos)
 }
 
-
 pub struct Day20 { }
 
 impl Day for Day20 {
@@ -142,21 +130,17 @@ impl Day for Day20 {
         let end_pos = maze_1.2;
         let iter_maze = maze_1.0;
         let mut mut_maze = maze_2.0;
-        //dbg!(&iter_maze);
-        //dbg!(self.start_pos);
-        //panic!();
 
         let maze_iter = SimpleMazeIterator { maze: &iter_maze, prev_pos: start_pos, start_pos: start_pos, end_pos: end_pos };
 
         let mut picoseconds_travelled: i64 = 0; 
         let y_bound = iter_maze.len() as i32;
         let x_bound = iter_maze[0].len() as i32;
-        let mut counter: HashMap<i64, u64> = HashMap::new();
         let mut good_cheats: u64 = 0;
 
         for pos in maze_iter {
-            //dbg!("hello!");
             picoseconds_travelled += 1;
+            // TODO: have to index maze like [y][x], is confusing, find better way 
             mut_maze[pos.1 as usize][pos.0 as usize] = picoseconds_travelled;
 
             for peek_pos_data in (UDLRIterator { center: pos, 
@@ -164,8 +148,6 @@ impl Day for Day20 {
                                                                             index: 0, 
                                                                             x_bound: x_bound, 
                                                                             y_bound: y_bound }) {
-                //dbg!(&peek_pos_data);
-
                 let peek_pos = peek_pos_data.0;
                 let wall_check_pos = match peek_pos_data.1 {
                     Direction::UP => (peek_pos.0, peek_pos.1 - 1),
@@ -173,37 +155,83 @@ impl Day for Day20 {
                     Direction::DOWN => (peek_pos.0, peek_pos.1 + 1),
                     Direction::LEFT => (peek_pos.0 + 1, peek_pos.1),
                 };
-                if pos == (9,1) {
-                    //dbg!(pos);
-                    //dbg!(peek_pos);    
-                }
 
                 if (mut_maze[peek_pos.1 as usize][peek_pos.0 as usize] > 0 || peek_pos == start_pos) &&
                     mut_maze[wall_check_pos.1 as usize][wall_check_pos.0 as usize] == -1 {
-                    // peek_pos is behind a wall and already visited, check time savings
+                    // peek_pos is behind a wall and already visited, so is a valid cheat
                     let time_saved = picoseconds_travelled - mut_maze[peek_pos.1 as usize][peek_pos.0 as usize] - 2;
-                    //let freq = counter.entry(time_saved).or_insert(0);
-                    //*freq += 1;
                     if time_saved >= 100 {
                         good_cheats += 1;
                     }
                 }
             }
 
-            if pos == (9,1) {
-                //panic!(); 
-            }
-
         }
-        dbg!(good_cheats);
 
-        "".to_string()
+        good_cheats.to_string()
     }
 
+
+    
     
     fn puzzle_2(mut input: io::Lines<io::BufReader<fs::File>>) -> String {
 
         "".to_string()
     }
 
+}
+
+
+struct ManhattanDistanceIterator {
+    center: (i32, i32),
+    radius: i32,
+    index: i32,
+    sub_index: i32,
+    x_bound: i32,
+    y_bound: i32
+}
+
+impl Iterator for ManhattanDistanceIterator {
+    type Item = (i32, i32);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        
+        if self.sub_index > 3 {
+            self.sub_index = 0;
+            self.index += 1;
+            if self.index >= self.radius {
+                self.radius -= 1;
+            }
+        }
+        if self.radius < 1 {
+            return None;
+        }
+
+        let mut next: Option<(i32, i32)>;
+
+        loop {
+            let offset = self.index;
+            let inverse_offset = self.radius - self.index;
+
+            // stole this elegant algorithm: https://stackoverflow.com/questions/75128474/how-to-generate-all-of-the-coordinates-that-are-within-a-manhattan-distance-r-of
+            next = match self.index {
+                0 => Some((self.center.0 + offset, self.center.1 + inverse_offset)),
+                1 => Some((self.center.0 + inverse_offset, self.center.1 - offset)),
+                2 => Some((self.center.0 - offset, self.center.1 - inverse_offset)),
+                3 => Some((self.center.0 - inverse_offset, self.center.1 + offset)),
+                _ => panic!() // not gonna happen!
+            }; 
+
+            if let Some(pos) = next {
+                let in_bounds = !(pos.0 < 0 || pos.0 >= self.x_bound || pos.1 < 0 || pos.1 >= self.y_bound);
+                if in_bounds {
+                    self.index += 1;
+                    break;
+                }    
+            }
+            self.sub_index += 1;
+        }
+
+        next
+    }
 }
