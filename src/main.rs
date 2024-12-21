@@ -59,6 +59,7 @@ fn main() {
         9 => { advent_of_code::day_9::Day9::dispatch(puzzle, input); }
         11 => { advent_of_code::day_11::Day11::dispatch(puzzle, input); }
         19 => { advent_of_code::day_19::Day19::dispatch(puzzle, input); }
+        20 => { advent_of_code::day_20::Day20::dispatch(puzzle, input); }
         _ => { }
     }     
 }
