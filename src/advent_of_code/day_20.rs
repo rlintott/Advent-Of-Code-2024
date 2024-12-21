@@ -176,7 +176,7 @@ impl Day for Day20 {
 
     
     
-    fn puzzle_2(mut input: io::Lines<io::BufReader<fs::File>>) -> String {
+    fn puzzle_2(input: io::Lines<io::BufReader<fs::File>>) -> String {
 
         
         let all_lines: Vec<Result<String, io::Error>> = input.collect();
@@ -196,13 +196,15 @@ impl Day for Day20 {
         let x_bound = iter_maze[0].len() as i32;
         let mut good_cheats: u64 = 0;
 
+        let mut counter: HashMap<i64, u64> = HashMap::new();
+
         for pos in maze_iter {
             picoseconds_travelled += 1;
             // TODO: have to index maze like [y][x], is confusing, find better way 
             mut_maze[pos.1 as usize][pos.0 as usize] = picoseconds_travelled;
 
             for peek_pos_data in (ManhattanDistanceIterator { center: pos, 
-                                                                            radius: 20, 
+                                                                            distance: 20, 
                                                                             index: 0, 
                                                                             sub_index: 0,
                                                                             x_bound: x_bound, 
@@ -212,6 +214,10 @@ impl Day for Day20 {
                 let cheat_picoseconds = peek_pos_data.1;
                 if mut_maze[peek_pos.1 as usize][peek_pos.0 as usize] > 0 || peek_pos == start_pos {
                     let time_saved = picoseconds_travelled - mut_maze[peek_pos.1 as usize][peek_pos.0 as usize] - cheat_picoseconds as i64;
+
+                    let freq = counter.entry(time_saved).or_insert(0);
+                    *freq += 1;
+    
                     if time_saved >= 100 {
                         good_cheats += 1;
                     }
@@ -219,16 +225,18 @@ impl Day for Day20 {
             }
 
         }
-
+        //dbg!(counter);
+        dbg!(good_cheats);
         good_cheats.to_string()
     }
 
 }
 
 
+// traverses all points within distance of center on a grid
 struct ManhattanDistanceIterator {
     center: (i32, i32),
-    radius: i32,
+    distance: i32,
     index: i32,
     sub_index: i32,
     x_bound: i32,
@@ -245,24 +253,24 @@ impl Iterator for ManhattanDistanceIterator {
             if self.sub_index > 3 {
                 self.sub_index = 0;
                 self.index += 1;
-                if self.index >= self.radius {
+                if self.index >= self.distance {
                     self.index = 0;
-                    self.radius -= 1;
+                    self.distance -= 1;
                 }
             }
-            if self.radius < 1 {
+            if self.distance < 1 {
                 return None;
             }    
 
             let offset = self.index;
-            let inverse_offset = self.radius - self.index;
+            let inverse_offset = self.distance - self.index;
 
-            // stole this elegant algorithm: https://stackoverflow.com/questions/75128474/how-to-generate-all-of-the-coordinates-that-are-within-a-manhattan-distance-r-of
-            next = match self.index {
-                0 => Some(((self.center.0 + offset, self.center.1 + inverse_offset), self.radius)),
-                1 => Some(((self.center.0 + inverse_offset, self.center.1 - offset), self.radius)),
-                2 => Some(((self.center.0 - offset, self.center.1 - inverse_offset), self.radius)),
-                3 => Some(((self.center.0 - inverse_offset, self.center.1 + offset),self.radius)),
+            // stole this algorithm: https://stackoverflow.com/questions/75128474/how-to-generate-all-of-the-coordinates-that-are-within-a-manhattan-distance-r-of
+            next = match self.sub_index {
+                0 => Some(((self.center.0 + offset, self.center.1 + inverse_offset), self.distance)),
+                1 => Some(((self.center.0 + inverse_offset, self.center.1 - offset), self.distance)),
+                2 => Some(((self.center.0 - offset, self.center.1 - inverse_offset), self.distance)),
+                3 => Some(((self.center.0 - inverse_offset, self.center.1 + offset),self.distance)),
                 _ => panic!() // not gonna happen!
             }; 
 
@@ -275,7 +283,6 @@ impl Iterator for ManhattanDistanceIterator {
                 }    
             }
         }
-
         next
     }
 }
