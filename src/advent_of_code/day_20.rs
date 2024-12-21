@@ -39,6 +39,7 @@ impl Iterator for UDLRIterator {
                 let pos = pos_data.0;
                 in_bounds = !(pos.0 < 0 || pos.0 >= self.x_bound || pos.1 < 0 || pos.1 >= self.y_bound);
             }
+
             if self.index > 3 || in_bounds {
                 self.index += 1;
                 break;
@@ -202,6 +203,7 @@ impl Iterator for ManhattanDistanceIterator {
                 self.sub_index = 0;
                 self.index += 1;
                 if self.index >= self.radius {
+                    self.index = 0;
                     self.radius -= 1;
                 }
             }
@@ -221,14 +223,13 @@ impl Iterator for ManhattanDistanceIterator {
                 _ => panic!() // not gonna happen!
             }; 
 
+            self.sub_index += 1;
             if let Some(pos) = next {
                 let in_bounds = !(pos.0 < 0 || pos.0 >= self.x_bound || pos.1 < 0 || pos.1 >= self.y_bound);
                 if in_bounds {
-                    self.index += 1;
                     break;
                 }    
             }
-            self.sub_index += 1;
         }
 
         next
