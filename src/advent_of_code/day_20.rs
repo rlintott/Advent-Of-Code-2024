@@ -195,21 +195,20 @@ impl Iterator for ManhattanDistanceIterator {
     type Item = (i32, i32);
 
     fn next(&mut self) -> Option<Self::Item> {
-        
-        if self.sub_index > 3 {
-            self.sub_index = 0;
-            self.index += 1;
-            if self.index >= self.radius {
-                self.radius -= 1;
-            }
-        }
-        if self.radius < 1 {
-            return None;
-        }
-
         let mut next: Option<(i32, i32)>;
 
         loop {
+            if self.sub_index > 3 {
+                self.sub_index = 0;
+                self.index += 1;
+                if self.index >= self.radius {
+                    self.radius -= 1;
+                }
+            }
+            if self.radius < 1 {
+                return None;
+            }    
+
             let offset = self.index;
             let inverse_offset = self.radius - self.index;
 
