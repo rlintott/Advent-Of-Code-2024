@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::collections::VecDeque;
 use std::io;
 use std::fs;
 use std::ops::BitXor;
@@ -29,49 +28,45 @@ impl Day for Day22 {
 
     fn puzzle_2(input: io::Lines<io::BufReader<fs::File>>) -> String {
 
-        let mut sequences_to_sum: HashMap<(i8, i8, i8, i8), (usize, u64)>  = HashMap::new();
-
-        let mut window: VecDeque<i8> = VecDeque::new();
+        let mut sequences_to_sum: HashMap<u32, (usize, u64)>  = HashMap::new();
+        let mut hash: u32 = 0;
         let mut id: usize = 0;
         for line in input {
             let number = line.unwrap().parse::<u64>().unwrap();
             let mut curr = number;
             let mut prev: Option<u64>;
-
+            let mut shifts: usize = 0;
             for _i in 0..2000 {
                 prev = Some(curr);
                 curr = get_next_secret_number(curr);
-
+                
                 if let Some(prev) = prev {
-                    let change = (curr % 10) as i8 - (prev % 10) as i8;
-                    window.push_back(change);
-                    if window.len()  == 4 {
-
-                        let price =  curr % 10;
-                        let entry = sequences_to_sum.entry((window[0], window[1], window[2], window[3])).or_insert((id, price));
+                    let price =  curr % 10;                        
+                    let change = price as i8 - (prev % 10) as i8;
+                    hash = (hash << 8) | (change as u32 & 0xff);
+                    shifts += 1;
+                    if shifts > 3 {
+                        let entry = sequences_to_sum.entry(hash).or_insert((id, price));
                         if (*entry).0 != id { // overwrite, update curr and sum
                             *entry = (id,  price + (*entry).1);
-                        }
-                        window.pop_front();
+                        }    
                     }
                 }
             }
             id += 1;
-            window.clear();
+            hash = 0;
         }
 
-        let mut best_sequence: Option<(i8, i8, i8, i8)> = None;
         let mut best_sequence_bananas: u64 = 0;
         for entry in sequences_to_sum {
             let max_bananas = entry.1.1;
             if max_bananas > best_sequence_bananas {
-                best_sequence = Some(entry.0);
+                //best_sequence = Some(entry.0);
                 best_sequence_bananas = max_bananas;
             }
         }
 
         dbg!(best_sequence_bananas);
-        dbg!(best_sequence);
         best_sequence_bananas.to_string()
     }
 
