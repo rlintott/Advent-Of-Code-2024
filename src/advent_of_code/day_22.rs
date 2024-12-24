@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::collections::VecDeque;
 use std::io;
 use std::fs;
 use std::ops::BitXor;
@@ -27,39 +28,43 @@ impl Day for Day22 {
     
 
     fn puzzle_2(input: io::Lines<io::BufReader<fs::File>>) -> String {
-
-        let mut sequences_to_sum: HashMap<u32, (usize, u64)>  = HashMap::new();
+        // plus 19 to get it 
+        let mut sequences_to_sum: Vec<(u32, u32)> = vec![(u32::max_value(), 0); 19usize.pow(4)];
         let mut hash: u32 = 0;
-        let mut id: usize = 0;
+        let mut id: u32 = 0;
+
         for line in input {
             let number = line.unwrap().parse::<u64>().unwrap();
-            let mut curr = number;
-            let mut prev: Option<u64>;
+            let mut curr: u64 = number;
+            let mut prev: u64;
             let mut shifts: usize = 0;
             for _i in 0..2000 {
-                prev = Some(curr);
+                prev = curr;
                 curr = get_next_secret_number(curr);
                 
-                if let Some(prev) = prev {
-                    let price =  curr % 10;                        
-                    let change = price as i8 - (prev % 10) as i8;
-                    hash = (hash << 8) | (change as u32 & 0xff);
-                    shifts += 1;
-                    if shifts > 3 {
-                        let entry = sequences_to_sum.entry(hash).or_insert((id, price));
-                        if (*entry).0 != id { // overwrite, update curr and sum
-                            *entry = (id,  price + (*entry).1);
-                        }    
-                    }
+                let price =  curr % 10;                        
+                let change: i8 = (price as i8 - (prev % 10) as i8) + 9;
+                hash = (hash << 8) | (change as u32 & 0xff);
+                shifts += 1;
+                if shifts > 3 {
+                    let index = ((hash & 0xFF000000) >> 24) * 19 * 19 * 19 +
+                                        ((hash & 0x00FF0000) >> 16) * 19 * 19 +
+                                        ((hash & 0x0000FF00) >> 8) * 19 +
+                                        ((hash & 0x000000FF));                        
+
+                    let entry = sequences_to_sum[index as usize];
+                    if entry.0 != id { // overwrite, update curr and sum
+                        sequences_to_sum[index as usize] = (id, price as u32 + entry.1);
+                    }    
                 }
             }
             id += 1;
             hash = 0;
         }
 
-        let mut best_sequence_bananas: u64 = 0;
+        let mut best_sequence_bananas: u32 = 0;
         for entry in sequences_to_sum {
-            let max_bananas = entry.1.1;
+            let max_bananas = entry.1;
             if max_bananas > best_sequence_bananas {
                 //best_sequence = Some(entry.0);
                 best_sequence_bananas = max_bananas;
