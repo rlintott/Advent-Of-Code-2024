@@ -74,10 +74,11 @@ impl Day for Day23 {
         }
 
         let mut lan_parties: HashSet<Vec<&u64>> = HashSet::new();
+        let mut curr_best_size = 2;
 
         for node in &graph {
             let edges = node.1;
-            for i in 2..edges.len() {
+            for i in curr_best_size..edges.len() {
                 let combinations = node.1.iter().combinations(i);
                 for combination in combinations {
                     let mut is_a_party = true;
@@ -102,6 +103,7 @@ impl Day for Day23 {
                         copy.push(node.0);
                         copy.sort();
                         lan_parties.insert(copy);
+                        curr_best_size = i;
                     }
                 }
             }
