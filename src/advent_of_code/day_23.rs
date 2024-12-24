@@ -103,7 +103,7 @@ impl Day for Day23 {
                         copy.push(node.0);
                         copy.sort();
                         lan_parties.insert(copy);
-                        curr_best_size = i;
+                        curr_best_size = i + 1;
                     }
                 }
             }
