@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-use std::collections::VecDeque;
 use std::io;
 use std::fs;
 use std::ops::BitXor;
