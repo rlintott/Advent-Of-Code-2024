@@ -17,6 +17,7 @@ impl Day for Day24 {
             let string = line.unwrap();
             if string.is_empty() { // inputs and gates separated by an empty line
                 is_inputs = false;
+                continue;
             }
 
             if is_inputs {
@@ -32,7 +33,7 @@ impl Day for Day24 {
                     "OR" => Op::OR,
                     "XOR" => Op::XOR,
                     _ => panic!() // not gonna happen!
-                }
+                };
                 let output_wire = tokens[4].to_string();
                 if output_wire.chars().nth(0).unwrap() == 'z' {
                     z_wires.push(output_wire.to_string());
@@ -43,14 +44,17 @@ impl Day for Day24 {
 
         z_wires.sort();
 
-        let mut result: u32 = 0;
-        let mut multiplier: u32 = 1;
+        let mut result: u64 = 0;
+        let mut multiplier: u64 = 1;
         for wire in z_wires {
             get_wire_value(&wire, &gates, &mut wire_values);
-            result += wire_values[&wire] as u32 * multiplier;
+            dbg!(&wire);
+            dbg!(wire_values[&wire] as u64);
+            result += wire_values[&wire] as u64 * multiplier;
             multiplier *= 2;
         }
         dbg!(result);
+        // answer too low
         result.to_string()
     }    
 
@@ -80,7 +84,7 @@ fn get_wire_value(wire: &String, gates: &HashMap<String, (String, Op, String)>, 
         get_wire_value(&input.2, gates, wire_values);
     }
     let wire_1 = wire_values[&input.0];
-    let wire_2 = wire_values[&input.0];
+    let wire_2 = wire_values[&input.2];
     match input.1 {
         Op::AND => { wire_values.insert(wire.to_string(), wire_1 & wire_2); },
         Op::OR => { wire_values.insert(wire.to_string(), wire_1 | wire_2); },
