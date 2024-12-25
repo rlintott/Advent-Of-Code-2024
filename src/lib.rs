@@ -12,6 +12,7 @@ pub mod advent_of_code {
     pub mod day_21;
     pub mod day_22;
     pub mod day_23;
+    pub mod day_24;
 
     // up down left right iterator! initialize with index 0. Skips positions that are out of bounds
     struct UDLRIterator {
